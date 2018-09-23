@@ -16,3 +16,7 @@ Route::get('/', 'TasksController@index');
 Route::resource('tasks', 'TasksController');
 // 複写機能（ボタン）
 Route::get('tasks/{id}/copy', 'TasksController@copy');
+
+// ユーザ登録
+Route::get('signup', 'Auth\RegisterController@showRegistrationForm')->name('signup.get');
+Route::post('signup', 'Auth\RegisterController@register')->name('signup.post');
