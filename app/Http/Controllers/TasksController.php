@@ -20,12 +20,9 @@ class TasksController extends Controller
             $user = \Auth::user();
             $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
 
-            $data = [
-                'user' => $user,
+            return view('tasks.index', [
                 'tasks' => $tasks,
-            ];
-            $data += $this->counts($user);
-            return view('users.show', $data);
+            ]);
         }else {
             return view('welcome');
         }
@@ -61,6 +58,7 @@ class TasksController extends Controller
         ]);
         
         $task = new Task;
+        $task->user_id = \Auth::id();
         $task->status = $request->status;
         $task->content = $request->content;
         $task->save();
@@ -96,6 +94,12 @@ class TasksController extends Controller
         return view('tasks.edit', [
             'task' => $task,
         ]);
+        
+        if (\Auth::id() === $task->user_id) { // ログイン中のユーザのIDとタスクの作成者のIDが一致する
+            $task->delete();
+        }
+        
+        return redirect('/');
     }
 
     /**
@@ -117,6 +121,10 @@ class TasksController extends Controller
         $task->content = $request->content;
         $task->save();
         
+        if (\Auth::id() === $task->user_id) { // ログイン中のユーザのIDとタスクの作成者のIDが一致する
+            $task->update();
+        }
+        
         return redirect('/');
     }
 
@@ -130,8 +138,8 @@ class TasksController extends Controller
     {
         $task = \App\Task::find($id);
         
-        if (\Auth::id() === $task->user_id) {
-        $task->delete();
+        if (\Auth::id() === $task->user_id) { // ログイン中のユーザのIDとタスクの作成者のIDが一致する
+            $task->delete();
         }
         
         return redirect('/');
